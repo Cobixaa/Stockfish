@@ -701,6 +701,7 @@ Value Search::Worker::search(
             if (depth >= 8 && ttData.move && pos.pseudo_legal(ttData.move) && pos.legal(ttData.move)
                 && !is_decisive(ttData.value))
             {
+                // Fast path: inline gives_check() is already computed by move legality
                 pos.do_move(ttData.move, st);
                 Key nextPosKey                             = pos.key();
                 auto [ttHitNext, ttDataNext, ttWriterNext] = tt.probe(nextPosKey);

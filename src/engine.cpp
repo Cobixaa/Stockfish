@@ -70,20 +70,24 @@ Engine::Engine(std::optional<std::string> path) :
       }));
 
     options.add(  //
-      "NumaPolicy", Option("auto", [this](const Option& o) {
+      "NumaPolicy", Option("hardware", [this](const Option& o) {
           set_numa_config_from_option(o);
           return numa_config_information_as_string() + "\n"
                + thread_allocation_information_as_string();
       }));
 
+    // Choose stronger out-of-the-box defaults based on system capabilities
+    int defaultThreads = std::max(1, int(SYSTEM_THREADS_NB));
+    int defaultHashMB  = std::min(MaxHashMB, std::max(64, defaultThreads * 64));
+
     options.add(  //
-      "Threads", Option(1, 1, MaxThreads, [this](const Option&) {
+      "Threads", Option(defaultThreads, 1, MaxThreads, [this](const Option&) {
           resize_threads();
           return thread_allocation_information_as_string();
       }));
 
     options.add(  //
-      "Hash", Option(16, 1, MaxHashMB, [this](const Option& o) {
+      "Hash", Option(defaultHashMB, 1, MaxHashMB, [this](const Option& o) {
           set_tt_size(o);
           return std::nullopt;
       }));
